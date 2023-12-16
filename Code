@@ -1,0 +1,262 @@
+import pygame
+
+pygame.init()
+win=pygame.display.set_mode((800, 640))
+
+pygame.display.set_caption("First game")
+
+walkRight = [pygame.image.load('right_1.png'), pygame.image.load('right_2.png'), pygame.image.load('right_3.png'), pygame.image.load('right_4.png'), pygame.image.load('right_5.png'), pygame.image.load('right_6.png')]
+
+walkLeft = [pygame.image.load('left_1.png'), pygame.image.load('left_2.png'), pygame.image.load('left_3.png'), pygame.image.load('left_4.png'), pygame.image.load('left_5.png'), pygame.image.load('left_6.png')]
+
+bg = pygame.image.load('a464b0df5385.png')
+playerStand = pygame.image.load('stand.png')
+
+walkRight2 = [pygame.image.load('right_11.png'), pygame.image.load('right_22.png'), pygame.image.load('right_33.png'), pygame.image.load('right_44.png'), pygame.image.load('right_55.png'), pygame.image.load('right_66.png')]
+walkLeft2 = [pygame.image.load('left_11.png'), pygame.image.load('left_22.png'), pygame.image.load('left_33.png'), pygame.image.load('left_44.png'), pygame.image.load('left_55.png'), pygame.image.load('left_66.png')]
+playerStand2 = pygame.image.load('stand2.png')
+
+clock=pygame.time.Clock()
+
+x=50
+y=560
+width=40
+height=74
+speed=10
+
+isJump=False
+jumpCount = 10
+
+left=False
+right=False
+animCount=0
+lastMove="right"
+
+x2=750
+y2=560
+width2=40
+height2=74
+speed2=10
+
+isJump2=False
+jumpCount2 = 10
+
+left2=False
+right2=False
+animCount2=0
+lastMove2="right"
+
+
+
+class snaryad():
+    def __init__(self, x, y, radius, color, facing):
+        self.x=x
+        self.y=y
+        self.radius=radius
+        self.color=color
+        self.facing=facing
+        self.vel = 8*facing
+
+    def draw(self, win):
+        pygame.draw.circle(win, self.color, (self.x, self.y),self.radius)
+
+class snaryad2():
+    def __init__(self, x2, y2, radius, color, facing2):
+        self.x2=x2
+        self.y2=y2
+        self.radius=radius
+        self.color=color
+        self.facing2=facing2
+        self.vel = 8*facing2
+
+    def draw(self, win):
+        pygame.draw.circle(win, self.color, (self.x2, self.y2),self.radius)
+
+
+def drawWindow():
+    global animCount
+    global animCount2
+    win.blit(bg,(0,0))
+
+    PLATFORM_WIDTH = 32
+    PLATFORM_HEIGHT = 32
+    PLATFORM_COLOR = "#FF6262"
+
+    level = [
+           "-------------------------",
+           "-                       -",
+           "-                       -",
+           "-                       -",
+           "-            --         -",
+           "-                       -",
+           "--                      -",
+           "-                       -",
+           "-                   --- -",
+           "-                       -",
+           "-                       -",
+           "-      ---              -",
+           "-                       -",
+           "   -----------         ",
+           "                      ",
+           "                -      ",
+           "                   --  ",
+           "                       ",
+           "                       "]
+
+    #x1=y1=0
+    #for row in level:
+        #for col in row:
+            #if col == "-":
+                #pygame.draw.rect(win,(71,36,1),(x1,y1,32,32))
+            #x1 = x1 + PLATFORM_WIDTH 
+        #y1 += PLATFORM_HEIGHT    
+        #x1 = 0                 
+
+    if animCount + 1>=30:
+        animCount=0
+
+    if left:
+        win.blit(walkLeft[animCount//5], (x,y))
+        animCount+=1
+    elif right:
+        win.blit(walkRight[animCount//5], (x,y))
+        animCount+=1
+    else:
+        win.blit(playerStand, (x,y))
+
+    for bullet in bullets:
+        bullet.draw(win)
+
+    if animCount2 + 1>=30:
+        animCount2=0
+
+    if left2:
+        win.blit(walkLeft2[animCount2//5], (x2,y2))
+        animCount2+=1
+    elif right2:
+        win.blit(walkRight2[animCount2//5], (x2,y2))
+        animCount2+=1
+    else:
+        win.blit(playerStand2, (x2,y2))
+
+    for bullet2 in bullets2:
+        bullet2.draw(win)
+    
+    
+    pygame.display.update()
+
+run=True
+bullets = []
+bullets2 = []
+while run:
+    clock.tick(30)
+
+    for event in pygame.event.get():
+        if event.type==pygame.QUIT:
+            run=False
+
+    for bullet in bullets:
+        if bullet.x < 800 and bullet.x>0:
+            bullet.x += bullet.vel
+        else:
+            bullets.pop(bullets.index(bullet))
+
+    for bullet2 in bullets2:
+        if bullet2.x2 < 800 and bullet2.x2>0:
+            bullet2.x2 += bullet2.vel
+        else:
+            bullets2.pop(bullets2.index(bullet2))
+            
+
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_f]:
+        if lastMove=="right":
+            facing=1
+        else:
+            facing=-1
+
+        
+        if len(bullets)<5:
+            bullets.append(snaryad(round(x+width//2), round(y+height//2), 5, (0, 0, 0), facing))
+    
+    if keys[pygame.K_LEFT] and x>5:
+        x-=speed
+        left=True
+        right=False
+        lastMove="left"
+    elif keys[pygame.K_RIGHT] and x<800-width-5:
+        x+=speed
+        left=False
+        right=True
+        lastMove="right"
+    else:
+        left=False
+        right=False
+        animCount=0
+    if not(isJump):
+        if keys[pygame.K_SPACE]:
+           isJump=True
+    else:
+        if jumpCount >= -10:
+            if jumpCount<0:
+                y+=(jumpCount**2)/2
+            else:
+                y-=(jumpCount**2)/2
+            jumpCount-=1
+
+        else:
+            isJump=False
+            jumpCount=10
+
+
+    if keys[pygame.K_x]:
+        if lastMove2=="right":
+            facing2=1
+        else:
+            facing2=-1
+
+        
+        if len(bullets2)<5:
+            bullets2.append(snaryad2(round(x2+width2//2), round(y2+height2//2), 20, (0, 0, 255), facing2))
+    
+    if keys[pygame.K_a] and x2>5:
+        x2-=speed2
+        left2=True
+        right2=False
+        lastMove2="left"
+    elif keys[pygame.K_d] and x2<800-width2-5:
+        x2+=speed2
+        left2=False
+        right2=True
+        lastMove2="right"
+    else:
+        left2=False
+        right2=False
+        animCount2=0
+    if not(isJump2):
+        if keys[pygame.K_z]:
+           isJump2=True
+    else:
+        if jumpCount2 >= -10:
+            if jumpCount2<0:
+                y2+=(jumpCount2**2)/2
+            else:
+                y2-=(jumpCount2**2)/2
+            jumpCount2-=1
+
+        else:
+            isJump2=False
+            jumpCount2=10
+
+    drawWindow()
+    
+
+    win.fill((0,0,0))
+
+
+    
+
+
+    
+pygame.quit()
